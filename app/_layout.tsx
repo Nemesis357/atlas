@@ -3,13 +3,15 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { Text, View, Button } from 'react-native';
 import 'react-native-reanimated';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { FIREBASE_AUTH } from '../FirebaseConfig.ts';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
 
-import Login from "./screens/Login/Login.tsx";
-import Main from "./screens/Main/Main.tsx";
+import Login from "./screens/Login/Login";
+import Main from "./screens/Main/Main";
+import Details from "./screens/Details/Details";
 import { useColorScheme } from '@/components/useColorScheme';
 import { User, onAuthStateChanged } from 'firebase/auth';
 
@@ -57,20 +59,22 @@ function RootLayoutNav() {
         [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        console.log("LAYOUT -user- ", user?.email);
         onAuthStateChanged(FIREBASE_AUTH, (user) => {
-            console.log("onAuthStateChanged: ", user?.email);
-            if (!!user) setUser(user);
+            setUser(user);
         })
-    }, [])
+    }, [user])
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Text>USER: {user && user.email}</Text>
         <Stack.Navigator>
         {user ? (
-            <Stack.Screen name="Main" component={Main} options={{ headerShown: true }} />
+            <>
+              <Stack.Screen name="Main" component={Main} options={{ headerShown: true }} />
+              <Stack.Screen name="Details" component={Details} options={{ headerShown: true }} />
+            </>
         ) : (
-            <Stack.Screen name="Login page" component={Login} options={{ headerShown: false }} />
+            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
         )}
         </Stack.Navigator>
     </ThemeProvider>
